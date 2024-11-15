@@ -11,7 +11,7 @@ api_key = os.getenv("OPENAI_API_KEY")
 openai.api_key = api_key
 
 # Load data from file
-file_path = r'/home/motaseam/Downloads/lober-chat/data/clean/ar.txt'
+file_path = r'data/clean/ar.txt'
 with open(file_path, 'r', encoding='utf-8') as file:
     data = file.readlines()
 
