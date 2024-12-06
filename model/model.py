@@ -72,8 +72,10 @@ Do not answer any question unrelated to labor laws.
             ],
             temperature=0
         )
-        # print(response.usage)
+        usage = response.usage
+        input_token = usage.completion_tokens # input token
+        prompt_token = usage.prompt_tokens # prompt tokens
         result = response.choices[0].message.content
-        return result
+        return result , input_token , prompt_token
     except Exception as e:
         raise RuntimeError(f"Error generating response: {str(e)}")

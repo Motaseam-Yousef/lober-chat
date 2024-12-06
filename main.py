@@ -21,8 +21,8 @@ def chat():
         return jsonify({"error": "Input cannot be empty"}), 400
 
     try:
-        response = chatbot_response(user_input)
-        return jsonify({"response": response})
+        response , input_token , prompt_token = chatbot_response(user_input)
+        return jsonify({"response": response, "input_token":input_token, "prompt_token":prompt_token})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
