@@ -72,7 +72,8 @@ Do not answer any question unrelated to labor laws.
             ],
             temperature=0
         )
-        result = response['choices'][0]['message']['content']
+        print(response.usage)
+        result = response.choices[0].message.content
         return result
     except Exception as e:
         raise RuntimeError(f"Error generating response: {str(e)}")
