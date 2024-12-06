@@ -23,7 +23,7 @@ def load_prompt(file_path):
 arabic_data = load_prompt(ARABIC_PROMPT_PATH)
 english_data = load_prompt(ENGLISH_PROMPT_PATH)
 
-MODEL = "gpt-4o"
+MODEL = "gpt-4o-mini"
 
 def chatbot_response(user_input):
     """
