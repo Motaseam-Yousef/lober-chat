@@ -1,104 +1,83 @@
 import streamlit as st
-import openai
-from dotenv import load_dotenv
-import os
+from model.model import chatbot_response  # Import the chatbot function
 
-# Load environment variables from .env file
-load_dotenv()
+# Streamlit App Configuration
+st.set_page_config(
+    page_title="Saudi Labor Law Chatbot",
+    layout="centered",
+    initial_sidebar_state="collapsed"
+)
 
-# Set the API key
-api_key = os.getenv("OPENAI_API_KEY")
-openai.api_key = api_key
-
-# Load data from file
-file_path = r'data/clean/ar.txt'
-with open(file_path, 'r', encoding='utf-8') as file:
-    data = file.readlines()
-
-# Chatbot prompt setup
-prompt = f"""
-أنت مساعد يقدم إجابات حول قوانين العمل في المملكة العربية السعودية بناءً على البيانات المقدمة فقط. يرجى الإجابة فقط من المعلومات المعطاة وباللغة العربية مع الإشارة إلى المرجع المناسب.
-
----
-{data}
----
-
-عند طرح المستخدم لأسئلة، يرجى تقديم إجابة دقيقة ومختصرة باللغة العربية، باستخدام المعلومات المتوفرة فقط في قوانين العمل المقدمة، مع ذكر المرجع المناسب من البيانات المقدمة.
-"""
-
-MODEL = "gpt-4o"
-
-# Define a function to respond as a customer service chatbot
-def chatbot_response(user_input):
-    response = openai.chat.completions.create(
-        model=MODEL,
-        messages=[
-            {"role": "system", "content": prompt},
-            {"role": "user", "content": user_input}
-        ]
-    )
-    return response.choices[0].message.content
-
-# Streamlit app layout
-st.set_page_config(page_title="شات بوت لمساعدة في قانون العمل السعودي", layout="centered", initial_sidebar_state="collapsed")
-
-# Custom CSS for RTL styling and improved UI
+# Custom CSS for Right-to-Left and English Layout
 st.markdown("""
     <style>
         .rtl {direction: rtl; text-align: right;}
+        .ltr {direction: ltr; text-align: left;}
         .stTextArea textarea {direction: rtl; text-align: right; font-size: 1.1em; background-color: #fdfdfd; padding: 10px; border-radius: 8px; border: 1px solid #ddd;}
         .stButton button {width: 100%; font-size: 1.2em; padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer;}
         .stButton button:hover {background-color: #45a049;}
-        .chat-container {background-color: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #ddd; margin-top: 10px;}
         .chat-response {background-color: #e8f5e9; padding: 15px; border-radius: 8px; font-size: 1.1em; margin-top: 10px;}
         .footer {text-align: center; font-size: 0.9em; color: #888; margin-top: 30px;}
     </style>
     """, unsafe_allow_html=True)
 
-# Main Interface
-st.markdown("<h1 style='text-align: right;'>🤖 شات بوت للمساعدة في قانون العمل السعودي</h1>", unsafe_allow_html=True)
-st.markdown('<div class="rtl">💼 مرحباً بك! كيف يمكنني مساعدتك؟</div>', unsafe_allow_html=True)
+# Title and Description
+st.markdown("<h1 style='text-align: center;'>🤖 Saudi Labor Law Chatbot</h1>", unsafe_allow_html=True)
+st.markdown("💼 Welcome! How can I assist you today?", unsafe_allow_html=True)
 
 # Recommended Questions
-st.markdown("<h3 style='text-align: right;'>❓ أسئلة مقترحة:</h3>", unsafe_allow_html=True)
-recommended_questions = [
-    "ما هي الشروط الأساسية التي يجب أن يتضمنها عقد العمل وفقًا لنظام العمل السعودي؟",
-    "كيف يتم توثيق عقد العمل إلكترونيًا، وما هي الفائدة من هذا التوثيق؟",
-    "ما هي حقوق العامل أثناء فترة التجربة، وهل يمكن تمديدها؟",
-    "ما هي واجبات العامل تجاه صاحب العمل، وما الذي يجب عليه الالتزام به؟",
-    "ما هي أنواع الإجازات التي يحق للعامل الحصول عليها وفقًا للنظام؟",
-    "ما هي حقوق المرأة العاملة خلال فترة الحمل وإجازة الوضع؟",
-    "كيف يتم احتساب ساعات العمل، وما هي الاستثناءات المطبقة خلال شهر رمضان؟",
-    "ما هي الخطوات التي يجب اتباعها لتقديم شكوى أو تظلم في حال حدوث نزاع بين العامل وصاحب العمل؟",
-    "ما هي الحالات التي يحق فيها للعامل ترك العمل دون إشعار مع الاحتفاظ بحقوقه؟",
-    "كيف يتم التعامل مع الأجور، وما هي الشروط المتعلقة بدفع الرواتب واقتطاعات التأمينات الاجتماعية؟"
-]
+st.markdown("<h3>❓ Recommended Questions:</h3>", unsafe_allow_html=True)
 
-# Display recommended questions as clickable options
-for question in recommended_questions:
+questions = {
+    "Arabic": [
+        "ما هي العناصر الأساسية التي يجب تضمينها في عقد العمل وفقًا لنظام العمل السعودي؟",
+        "ما هي أقصى مدة لفترة التجربة، وما هي شروط تمديدها؟",
+        "كيف يتم دفع الأجور للعمال، وما هي الطرق المقبولة للدفع؟",
+        "ما هي قواعد تكليف العامل بمهام مختلفة أو نقله إلى موقع آخر؟",
+        "ما هي خطوات حساب مكافأة نهاية الخدمة للعاملين؟"
+    ],
+    "English": [
+        "What are the obligations of the employer towards employee safety and health under Saudi Labor Law?",
+        "What is the legal process for resolving disputes between an employer and an employee?",
+        "What are the conditions under which an employee can legally resign without notice?",
+        "How are overtime hours calculated, and what is the compensation rate for overtime work?",
+        "What are the provisions regarding annual leave and public holidays for employees in Saudi Arabia?"
+    ]
+}
+
+# Display Questions in Arabic and English
+st.markdown("<h4>Arabic:</h4>", unsafe_allow_html=True)
+for question in questions["Arabic"]:
     if st.button(question):
         st.session_state['user_input'] = question
 
-# Chat Input
-user_input = st.text_area("✍️ اكتب استفسارك هنا", key="user_input", max_chars=300, help="اكتب استفسارك حول قانون العمل السعودي هنا")
+st.markdown("<h4>English:</h4>", unsafe_allow_html=True)
+for question in questions["English"]:
+    if st.button(question):
+        st.session_state['user_input'] = question
 
-# Submit button
-if st.button('إرسال'):
+# User Input Area (Unlimited Size)
+user_input = st.text_area(
+    "✍️ Write your query here",
+    key="user_input",
+    height=150,  # Larger text area
+    help="Enter your query about Saudi Labor Law here. Input size is unlimited."
+)
+
+# Submit Button and Chatbot Response
+if st.button("Submit"):
     if user_input.strip() == "":
-        st.warning("الرجاء كتابة استفسار قبل الإرسال.")
+        st.warning("Please enter a query before submitting.")
     else:
-        with st.spinner('جاري معالجة استفسارك...'):
-            chatbot_reply = chatbot_response(user_input)
-            
-            # Display response
-            st.markdown('<div class="rtl">✅ تم الرد:</div>', unsafe_allow_html=True)
-            st.markdown(f'<div class="rtl chat-response">{chatbot_reply}</div>', unsafe_allow_html=True)
+        with st.spinner("Processing your query..."):
+            response = chatbot_response(user_input)  # Call the function from model.model
+            st.markdown('<div class="ltr">✅ Response:</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="chat-response">{response}</div>', unsafe_allow_html=True)
 
 # Footer
-st.markdown(
-    """
+st.markdown("""
     <hr>
     <div class="footer">
-        جميع الحقوق محفوظة © 2024 قصة تك.
+        All rights reserved © 2024 Qissat Tech.
     </div>
     """, unsafe_allow_html=True)
